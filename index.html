@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Bazy Danych mini-projekt</title>
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+
+<body>
+	<table id="options">
+		<tr>
+			<td>
+				<input type="button" id="option-1" class="selected" value="nowa pożyczka" disabled>
+			</td>
+			<td>
+				<input type="button" id="option-2" class="unselected" value="spłacanie">
+			</td>
+			<td>
+				<input type="button" id="option-3" class="unselected" value="wyszukaj osobę">
+			</td>
+			<td>
+				<button id="scheme">
+					<img src="src/theme.png" width="13px" height="13px">
+				</button>
+			</td>
+		</tr>
+	</table>
+	<br>
+	<table border="0" id="mainTable">
+		<tr>
+			<td>Imie</td>
+			<td><input type="text" id="name"><br></td>
+		</tr>
+
+		<tr>
+			<td>Nazwisko</td>
+			<td><input type="text" id="sirname"><br></td>
+		</tr>
+
+		<tr>
+			<td>Wysokość pożyczki</td>
+			<td><input type="number" id="amount"><br></td>
+		</tr>
+		<tr>
+			<td colspan="2"><input type="button" id="send" value="Wyślij"><br></td>
+		</tr>
+	</table>
+	<script src="renderer.js"></script>
+</body>
+
+</html>
