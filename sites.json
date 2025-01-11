@@ -1,0 +1,15 @@
+[
+	{
+		"name":"nowa pożyczka",
+		"form":"new.html"
+	},
+	{
+		"name":"spłacanie",
+		"form":""
+	},
+	{
+		"name":"wyszukaj",
+		"form":""
+	}
+]
+

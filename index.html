@@ -12,10 +12,10 @@
 	<table id="options">
 		<tr>
 			<td>
-				<input type="button" id="option-1" class="selected" value="nowa pożyczka" disabled>
+				<input type="button" id="option-1" class="selected" value="nowa pożyczka" disabled onclick="setOption(1)">
 			</td>
 			<td>
-				<input type="button" id="option-2" class="unselected" value="spłacanie">
+				<input type="button" id="option-2" class="unselected" value="spłacanie" onclick="setOption(2)">
 			</td>
 			<td>
 				<input type="button" id="option-3" class="unselected" value="wyszukaj osobę">
@@ -28,26 +28,10 @@
 		</tr>
 	</table>
 	<br>
-	<table border="0" id="mainTable">
-		<tr>
-			<td>Imie</td>
-			<td><input type="text" id="name"><br></td>
-		</tr>
-
-		<tr>
-			<td>Nazwisko</td>
-			<td><input type="text" id="sirname"><br></td>
-		</tr>
-
-		<tr>
-			<td>Wysokość pożyczki</td>
-			<td><input type="number" id="amount"><br></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input type="button" id="send" value="Wyślij"><br></td>
-		</tr>
-	</table>
-	<script src="renderer.js"></script>
+	<div id="content">
+	</div>
 </body>
+
+<script src="renderer.js" defer></script>
 
 </html>

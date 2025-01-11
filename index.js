@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron/main')
 const path = require('node:path')
+const fs = require("fs")
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -22,7 +23,22 @@ ipcMain.handle('dark-mode:toggle', () => {
   return nativeTheme.shouldUseDarkColors
 })
 
-ipcMain.on('submit', (event,data) => {
+ipcMain.handle('getJson',async ()=>{
+	let res = fs.readFileSync(path.join(__dirname,"sites.json"))
+	res = JSON.parse(res)
+	return res
+})
+
+ipcMain.handle('getSite',async (event,id)=>{
+	let site = fs.readFileSync(path.join(__dirname,"sites.json"))
+	site = JSON.parse(site)
+	if(site[id].form == "")
+		return null
+	let res = fs.readFileSync(path.join(__dirname,`./src/forms/${site[id].form}`),'utf-8')
+	return res
+})
+
+ipcMain.handle('submit', (event,data) => {
 	console.log(data)
 })
 

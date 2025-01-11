@@ -1,37 +1,45 @@
-var selected = 1;
+var selected = 0;
 
-document.getElementById('scheme').addEventListener('click', async () => {
+init()
+async function theme(){
 	const isDarkMode = await window.darkModez.toggle()
 	document.getElementById('theme-source').innerHTML = isDarkMode ? 'Dark' : 'Light'
-})
-document.getElementById('send').addEventListener('click', async () => {
+}
+
+async function init(){
+	const data = await window.get.selections(12)
+	let content = "<tr>"
+	for(x in data){
+			content += `<td><input type="button" id="option-${x}" class="unselected" value = "${data[x].name}" onclick="setOption(${x})"></td>`
+		console.log(data[x])
+	}
+	content+="<td><button id=\"scheme\"><img src=\"src/img/theme.png\" width=\"13px\" height=\"13px\" onclick=\"theme()\"></button></td></tr>"
+	document.getElementById("options").innerHTML = content
+	setOption(0)
+}
+
+async function setOption(id){
+	document.getElementById(`option-${selected}`).disabled = false
+	document.getElementById(`option-${selected}`).className = "unselected"
+	document.getElementById(`option-${id}`).disabled = true
+	document.getElementById(`option-${id}`).className = "selected"
+	selected = id
+	const data = await window.get.site(id)
+
+	if(!data){
+		document.getElementById("content").innerHTML="not found"
+		return
+	}
+	document.getElementById("content").innerHTML = data 
+}
+
+async function post(){
 	let data = {
 		name: document.getElementById('name').value,
-		sitname: document.getElementById('sirname').value,
+		sirname: document.getElementById('sirname').value,
 		amount: document.getElementById('amount').value,
 	}
 	const res = await window.send.send(data)
-	if(res.error)
+	if (res.error)
 		alert(res.msg)
-})
-document.getElementById('option-1').addEventListener('click', async () => {
-	document.getElementById('option-1').className = 'selected'
-	document.getElementById('option-1').disabled = true
-	document.getElementById(`option-${selected}`).className = 'unselected'
-	document.getElementById(`option-${selected}`).disabled = false 
-	selected = 1
-})
-document.getElementById('option-2').addEventListener('click', async () => {
-	document.getElementById('option-2').className = 'selected'
-	document.getElementById('option-2').disabled = true
-	document.getElementById(`option-${selected}`).className = 'unselected'
-	document.getElementById(`option-${selected}`).disabled = false 
-	selected = 2
-})
-document.getElementById('option-3').addEventListener('click', async () => {
-	document.getElementById('option-3').className = 'selected'
-	document.getElementById('option-3').disabled = true
-	document.getElementById(`option-${selected}`).className = 'unselected'
-	document.getElementById(`option-${selected}`).disabled = false 
-	selected = 3
-})
+}
