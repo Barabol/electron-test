@@ -1,61 +1,107 @@
 :root {
-  color-scheme: light dark;
+	color-scheme: light dark;
 }
-body{
-	transition:0.5s;
+
+body {
+	transition: 0.5s;
 	width: 100%;
-	heiht: 100%;
-	overflow:hidden;
+	height: 100%;
+	overflow-x: hidden;
 }
-#mainTable{
-	text-align:center;
+
+#mainTable {
+	text-align: center;
+	width: 50%;
+	margin: auto;
+	padding: 10px;
 }
-.selected{
+
+.selected {
 	border-style: outset;
-	outline:none;
+	outline: none;
 	text-decoration: none;
 	display: inline-block;
-	border-stype: solid;
+	border-style: solid;
 	border-width: 3px;
 	border-bottom-width: 0px;
 	border-radius: 10px 10px 0px 0px;
 	border-color: black;
 }
-.unselected{
+
+.unselected {
 	border-style: outset;
-	outline:none;
+	outline: none;
 	text-decoration: none;
 	display: inline-block;
-	border-stype: solid;
+	border-style: solid;
 	border-width: 3px;
 	border-radius: 10px;
 	border-color: black;
 }
-#options{
+
+#options {
 	border-width: 0px 0px 3px 0px;
 }
-#scheme{
-	transition:0.5s;
-	outline:none;
+
+#scheme {
+	transition: 0.5s;
+	outline: none;
 	border: none;
 	text-decoration: none;
 	margin-left: auto;
 	margin-right: 0;
-	decoration: none;
+	text-decoration: none;
 	background: #333;
 	display: inline-block;
 }
+
 @media (prefers-color-scheme: dark) {
-	body { background: #333; color: white; }
-	.unselected:hover { background: linear-gradient(180deg,#444,#333);transition:0.5s; }
-	#scheme{ background: #333; }
-	.selected { background: #333; }
-	.unselected {background: linear-gradient(180deg,#333,#333);transition:0.5s; }
+	body {
+		background: #333;
+		color: white;
+	}
+
+	.unselected:hover {
+		background: linear-gradient(180deg, #444, #333);
+		transition: 0.5s;
+	}
+
+	#scheme {
+		background: #333;
+	}
+
+	.selected {
+		background: #333;
+	}
+
+	.unselected {
+		background: linear-gradient(180deg, #333, #333);
+		transition: 0.5s;
+	}
 }
 
 @media (prefers-color-scheme: light) {
-	body { background: #ddd; color: black; }
-	.selected{ background: #ddd;  }
-	.unselected{ background: #ddd; }
-	#scheme{ background: #ddd; }
+	body {
+		background: #ddd;
+		color: black;
+	}
+
+	.selected {
+		background: #ddd;
+		transition: 0.5s;
+	}
+
+	.unselected:hover {
+		background: linear-gradient(180deg, #999, #DDD);
+		transition: 0.5s;
+	}
+
+	.unselected {
+		background: linear-gradient(180deg, #DDD, #DDD);
+		transition: 0.5s;
+	}
+
+	#scheme {
+		background: #ddd;
+	}
 }

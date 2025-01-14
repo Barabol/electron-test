@@ -4,12 +4,28 @@
 		"form":"new.html"
 	},
 	{
+		"name":"nowy żyrant",
+		"form":"zyranci.html"
+	},
+	{
+		"name":"nowy pozyczkobiorca",
+		"form":"pozyczkobiorca.html"
+	},
+	{
 		"name":"spłacanie",
-		"form":""
+		"form":"payment.html"
 	},
 	{
 		"name":"wyszukaj",
-		"form":""
+		"form":"search.html"
+	},
+	{
+		"name":"lista",
+		"form":"list.html"
+	},
+	{
+		"name":"dodaj z pliku",
+		"form":"fileAdd.html"
 	}
 ]
 

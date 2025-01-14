@@ -1,4 +1,4 @@
-<table border='0' id='mainTable'>
+<table border='1' id='mainTable'>
 	<tr>
 		<td>Imie</td>
 		<td><input type='text' id='name'><br></td>
@@ -12,6 +12,13 @@
 		<td><input type='number' id='amount'><br></td>
 	</tr>
 	<tr>
+		<td>Skan</td>
+		<td><input type='file' id='img' onchange="setFile()"><br></td>
+	</tr>
+	<tr>
 		<td colspan='2'><input type='button' id='send' value='Wyślij' onclick="post()"><br></td>
 	</tr>
 </table>
+<img src="" id="img2" width="200px">
+<div id="holder" class="">
+</div>
