@@ -17,7 +17,10 @@ async function init() {
 	document.getElementById("options").innerHTML = content
 	setOption(0)
 }
-
+async function deleteItem(id_){
+	await window.send.send({type:"delete",id:id_})
+	setOption(selected)
+}
 async function setOption(id) {
 	document.getElementById(`option-${selected}`).disabled = false
 	document.getElementById(`option-${selected}`).className = "unselected"
@@ -41,9 +44,10 @@ async function setOption(id) {
 			const b = await window.get.list()
 			//const b = ['a']
 			document.getElementById('mainTable').innerHTML = `<tr><td><b>Imie</b></td><td><b>Nazwisko</b>
-			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td></tr>`
+			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Usuń</b></td></tr>`
 			for (x in b) {
-				document.getElementById('mainTable').innerHTML += `<tr><td>${b[x][0]}</td><td>${b[x][1]}</td><td>${b[x][2]}</td><td>${b[x][3]}</td></tr>`
+				document.getElementById('mainTable').innerHTML += `<tr><td>${b[x][0]}</td><td>${b[x][1]}</td><td>${b[x][2]}</td><td>${b[x][3]}</td>
+				<td><input type="button" onclick="deleteItem(${b[x][4]})" value="X"></td></tr>`
 			}
 			break
 	}
@@ -66,7 +70,17 @@ async function setFile() {
 }
 async function post() {
 	let data
+	let res
 	switch (selected) {
+		case 0:
+			data = {
+				type: "pozyczka",
+				img:file 
+			}
+			res = await window.send.send(data)
+			if (res)
+				showMsg(true,`Error: ${res.code}\n${res.msg}`)
+			break
 		case 2:
 			data = {
 				type: "pozyczkobiorca",
@@ -76,10 +90,34 @@ async function post() {
 				pesel: document.getElementById('pesel').value,
 				sz: document.getElementById('employment').value
 			}
-			const res = await window.send.send(data)
+			res = await window.send.send(data)
 			if (res)
-				alert(`Error: ${res.code}\n${res.msg}`)
+				showMsg(true,`Error: ${res.code}\n${res.msg}`)
+			else
+				showMsg(false,`Dodano`)
 			break
+
 	}
 
+}
+function closeMsg(isError){
+	let msgId
+	if(isError)
+		msgId = "error"
+	else
+		msgId="info"
+
+	document.getElementById(msgId).style.opacity = 0;
+	document.getElementById(msgId).style.zIndex = 0;
+}
+function showMsg(isError,msg){
+	let msgId
+	if(isError)
+		msgId = "error"
+	else
+		msgId="info"
+	closeMsg(~isError)
+	document.getElementById(msgId).style.zIndex = 1;
+	document.getElementById(msgId).style.opacity = 1;
+	document.getElementById(`${msgId}-content`).innerHTML = msg;
 }

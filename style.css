@@ -41,6 +41,30 @@ body {
 
 #options {
 	border-width: 0px 0px 3px 0px;
+	position: fixed;
+	border-radius: 50px;
+	background-color: inherit;
+
+}
+
+.message {
+	opacity: 0;
+	z-index: 0;
+	position: fixed;
+	padding: 20px;
+	border-radius: 10px;
+	transition: 1s;
+}
+
+.msg-button {
+	border-style: outset;
+	outline: none;
+	text-decoration: none;
+	margin-left: auto;
+	margin-right: 0px;
+	display: block;
+	border-radius: 5px;
+	border: 1px;
 }
 
 #scheme {
@@ -53,9 +77,18 @@ body {
 	text-decoration: none;
 	background: #333;
 	display: inline-block;
+	border-radius: 49px;
 }
 
 @media (prefers-color-scheme: dark) {
+	#error {
+		background-color: #500;
+	}
+
+	#info {
+		background-color: #005;
+	}
+
 	body {
 		background: #333;
 		color: white;
@@ -66,12 +99,16 @@ body {
 		transition: 0.5s;
 	}
 
+	#options {
+		background: #444;
+	}
+
 	#scheme {
 		background: #333;
 	}
 
 	.selected {
-		background: #333;
+		background: #444;
 	}
 
 	.unselected {
@@ -81,9 +118,21 @@ body {
 }
 
 @media (prefers-color-scheme: light) {
+	#error {
+		background-color: #F00;
+	}
+
+	#info {
+		background-color: #00F;
+	}
+
 	body {
 		background: #ddd;
 		color: black;
+	}
+
+	#options {
+		background: #CCC
 	}
 
 	.selected {

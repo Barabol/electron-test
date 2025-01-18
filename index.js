@@ -47,7 +47,7 @@ ipcMain.handle('dark-mode:toggle', () => {
 
 ipcMain.handle('getList', async (event, type) => {
 	console.log("a")
-	let res = await run(`select cast(pozyczkobiorcy.imie as varchar(60)),cast(pozyczkobiorcy.nazwisko as varchar(60)),cast(pozyczkobiorcy.pesel as varchar(11)),cast(stan_zatrudnienia.nazwa as varchar(60))
+	let res = await run(`select cast(pozyczkobiorcy.imie as varchar(60)),cast(pozyczkobiorcy.nazwisko as varchar(60)),cast(pozyczkobiorcy.pesel as varchar(11)),cast(stan_zatrudnienia.nazwa as varchar(60)),pozyczkobiorcy.id_pozyczkobiorcy
 from pozyczkobiorcy inner join stan_zatrudnienia on stan_zatrudnienia.id = pozyczkobiorcy.stan_zatrudnienia_id`)
 	res = res.rows
 	return res
@@ -80,6 +80,9 @@ ipcMain.handle('submit', async (event, data) => {
 	let regex;
 	let err = { code: 0, msg: "" }
 	switch (data.type) {
+		case "delete":
+			console.log(await run(`delete from POZYCZKOBIORCY where id_pozyczkobiorcy = ${data.id}`))
+		break
 		case "pozyczkobiorca":
 			regex = /^[0-9]{11}$/
 			if (!regex.exec(data.pesel)) {
@@ -103,8 +106,8 @@ ipcMain.handle('submit', async (event, data) => {
 			}
 			try {
 				await run('select * from pozyczkobiorcy')
-				id = await run("select count(pozyczkobiorcy.ID_POZYCZKOBIORCY) from POZYCZKOBIORCY")
-				id = id.rows[0][0]
+				id = await run("select max(pozyczkobiorcy.ID_POZYCZKOBIORCY) from POZYCZKOBIORCY")
+				id = id.rows[0][0]+1
 				await run(`insert into pozyczkobiorcy(id_pozyczkobiorcy,imie,nazwisko,wielkosc_skladki,pesel,wynik_kredytowy,stan_zatrudnienia_id)
 			values (${id},'${data.name}','${data.sirname}',${data.moneyz},'${data.pesel}',0,${data.sz})`)
 
@@ -116,6 +119,21 @@ ipcMain.handle('submit', async (event, data) => {
 				return err
 			}
 			break
+		case "pozyczka":
+			try{
+				id = await run("select max(id_dokumentu) from dokument")
+				id = id.rows[0][0]+1
+				await run("select * from dokument")
+
+				res = await run(`insert into dokument(id_dokumentu,skan) values(${id},utl_raw.cast_to_raw('${img}'))`)
+				await run('insert into pozyczka()')
+			}
+			catch (err) {
+				err.msg = "oracle error"
+				err.code = randomInt()
+				return err
+			}
+		break
 	}
 })
 
