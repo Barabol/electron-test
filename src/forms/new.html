@@ -1,12 +1,50 @@
 <table border='1' id='mainTable'>
 	<tr>
-		<td>Imie</td>
-		<td><input type='text' id='name'><br></td>
+		<td>wyszukaj
+			<select id='search' style="text-align: center;">
+				<option value="">
+					---
+				</option>
+				<option value="imie">
+					imie
+				</option>
+				<option value="nazwisko">
+					nazwisko
+				</option>
+				<option value="pesel">
+					pesel
+				</option>
+			</select><br>
+			Uzupełnianie
+			<select id='s-type' style="text-align: center;">
+				<option value=' | '>
+					brak(S)
+				</option>
+				<option value=' |%'>
+					S+
+				</option>
+				<option value='%| '>
+					+S
+				</option>
+				<option value='%|%'>
+					+S+
+				</option>
+			</select>
+		</td>
+		<td>
+			<input type='text' id='name'>
+			<input type="button" value="szukaj" onclick="search()">
+		</td>
 	</tr>
 	<tr>
-		<td>Nazwisko</td>
-		<td><input type='text' id='sirname'><br></td>
-	</tr>
+		<td>
+			pozyczkobiorca:
+		</td>
+		<td>
+			<select id='selectPerson'>
+			</select>
+		</td>
+	<tr>
 	<tr>
 		<td>Wysokość pożyczki</td>
 		<td><input type='number' id='amount'><br></td>

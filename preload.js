@@ -6,10 +6,15 @@ contextBridge.exposeInMainWorld('darkModez', {
 })
 contextBridge.exposeInMainWorld('send', {
 	send: (data) => ipcRenderer.invoke('submit', data),
+	search: (type) => ipcRenderer.invoke("search", type)
 })
 contextBridge.exposeInMainWorld('get', {
 	selections: () => ipcRenderer.invoke("getJson"),
 	site: (id) => ipcRenderer.invoke("getSite", id),
 	employment: () => ipcRenderer.invoke("getEmployment"),
-	list: (type) => ipcRenderer.invoke("getList",type),
+	list: () => ipcRenderer.invoke("getList"),
+})
+contextBridge.exposeInMainWorld('file', {
+	export: () => ipcRenderer.invoke("exportToFile"),
+	import: (data) => ipcRenderer.invoke("importFromFile",data),
 })

@@ -1,1 +1,17 @@
-fileadd
+<table border='1' id='mainTable'>
+	<tr>
+		<td>
+			<select id="type">
+				<option value="import">
+					import
+				</option>
+				<option value="export">
+					export
+				</option>
+			</select>
+		</td>
+		<td><input type='file' id='img' onchange="setFile('text')" accept="text/json"><br></td>
+	</tr>
+</table>
+<div id="holder" class="">
+</div>

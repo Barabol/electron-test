@@ -2,17 +2,18 @@ const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron/main')
 const path = require('node:path')
 const fs = require("fs")
 const oracledb = require("oracledb")
-const { randomInt } = require('node:crypto')
+const { defaultApp } = require('node:process')
 require("dotenv").config()
 
 async function run(command) {
+
+	console.log(command)
 	try {
 		const connection = await oracledb.getConnection({
 			user: process.env.USR,
 			password: process.env.PASSWD,
 			connectString: process.env.HOST
 		})
-		console.log(command)
 		const res = await connection.execute(command)
 		console.log(await connection.execute("commit write batch"))
 		console.log(res)
@@ -20,7 +21,8 @@ async function run(command) {
 		return res
 	}
 	catch (err) {
-		return err
+		console.log(err)
+		throw ("Oracle error: <br>", command)
 	}
 }
 
@@ -44,11 +46,44 @@ ipcMain.handle('dark-mode:toggle', () => {
 	}
 	return nativeTheme.shouldUseDarkColors
 })
-
-ipcMain.handle('getList', async (event, type) => {
-	console.log("a")
-	let res = await run(`select cast(pozyczkobiorcy.imie as varchar(60)),cast(pozyczkobiorcy.nazwisko as varchar(60)),cast(pozyczkobiorcy.pesel as varchar(11)),cast(stan_zatrudnienia.nazwa as varchar(60)),pozyczkobiorcy.id_pozyczkobiorcy
-from pozyczkobiorcy inner join stan_zatrudnienia on stan_zatrudnienia.id = pozyczkobiorcy.stan_zatrudnienia_id`)
+ipcMain.handle('search', async (event, type) => {
+	let res;
+	if (!type) {
+		res = await run(`select * from lista_pozyczek`)
+		res = res.rows
+		return res
+	}
+	var regex
+	type.updatez = type.updatez.split('|')
+	switch(type.option){
+		case "imie":
+			regex = /^([a-z]|[A-Z])+$/
+			if (!regex.exec(type.data)) {
+				throw ("nie poprawne imie")
+			}
+		break
+		case "pesel":
+			regex = /^[0-9]{11}$/
+			if (!regex.exec(type.data)) {
+				throw ("nie poprawny pesel")
+			}
+		break
+		case "nazwisko":
+			regex = /^([a-z]|[A-Z])+$/
+			if (!regex.exec(type.data)) {
+				throw ("nie poprawne nazwisko")
+			}
+		break
+		default:
+		throw("zła opcja")
+	}
+	var req = `select * from lista_pozyczek where ${type.option} like '${type.updatez[0]==' '?'':type.updatez[0]}${type.gut}${type.updatez[1]==' '?'':type.updatez[1]}'`
+	res = await run(req);
+	res = res.rows;
+	return res;
+})
+ipcMain.handle('getList', async (event) => {
+	let res = await run(`select * from lista_pozyczek`)
 	res = res.rows
 	return res
 })
@@ -73,67 +108,64 @@ ipcMain.handle('getSite', async (event, id) => {
 	let res = fs.readFileSync(path.join(__dirname, `./src/forms/${site[id].form}`), 'utf-8')
 	return res
 })
+ipcMain.handle("exportToFile",async ()=> {
 
+})
+ipcMain.handle("importFromFile",async (event,data)=>{
+
+})
 ipcMain.handle('submit', async (event, data) => {
 	console.log(data)
 	let id;
 	let regex;
-	let err = { code: 0, msg: "" }
-	switch (data.type) {
-		case "delete":
-			console.log(await run(`delete from POZYCZKOBIORCY where id_pozyczkobiorcy = ${data.id}`))
-		break
-		case "pozyczkobiorca":
-			regex = /^[0-9]{11}$/
-			if (!regex.exec(data.pesel)) {
-				err.msg = "nie poprawny pesel"
-				err.code = 1
-				return err
-			}
-			data.name = (data.name).toLowerCase()
-			regex = /^([a-z]|[A-Z])+$/
-			if (!regex.exec(data.name)) {
-				err.msg = "nie poprawne imie"
-				err.code = 2
-				return err
-			}
-			data.sirname = (data.sirname).toLowerCase()
-			regex = /^([a-z]|[A-Z])+$/
-			if (!regex.exec(data.sirname)) {
-				err.msg = "nie poprawne nazwisko"
-				err.code = 2
-				return err
-			}
-			try {
+	try {
+		switch (data.type) {
+			case "delete":
+				console.log(await run(`delete from POZYCZKOBIORCY where id_pozyczkobiorcy = ${data.id}`))
+				break
+			case "pozyczkobiorca":
+				regex = /^[0-9]{11}$/
+				if (!regex.exec(data.pesel)) {
+					throw ("nie poprawny pesel")
+				}
+				data.name = (data.name).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.name)) {
+					throw ("nie poprawne imie")
+				}
+				data.sirname = (data.sirname).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.sirname)) {
+					throw ("nie poprawne nazwisko")
+				}
 				await run('select * from pozyczkobiorcy')
 				id = await run("select max(pozyczkobiorcy.ID_POZYCZKOBIORCY) from POZYCZKOBIORCY")
-				id = id.rows[0][0]+1
+				id = id.rows[0][0] + 1
+
 				await run(`insert into pozyczkobiorcy(id_pozyczkobiorcy,imie,nazwisko,wielkosc_skladki,pesel,wynik_kredytowy,stan_zatrudnienia_id)
 			values (${id},'${data.name}','${data.sirname}',${data.moneyz},'${data.pesel}',0,${data.sz})`)
 
 				await run('select * from pozyczkobiorcy')
-			}
-			catch (err) {
-				err.msg = "oracle error"
-				err.code = randomInt()
-				return err
-			}
-			break
-		case "pozyczka":
-			try{
+				break
+			case "pozyczka":
+				if (data.moneyz < 1)
+					throw ("wysokość pożyczki poza zakresem(1)")
 				id = await run("select max(id_dokumentu) from dokument")
-				id = id.rows[0][0]+1
-				await run("select * from dokument")
+				id = { doc: id.rows[0][0] + 1, poz: 0 }
+				let type = await run(`select * from limity_pozyczek where max <= ${data.moneyz} order by max asc`)
+				if (!type.rows.length)
+					throw new Error("wysokość pożyczki poza zakresem(2)")
 
-				res = await run(`insert into dokument(id_dokumentu,skan) values(${id},utl_raw.cast_to_raw('${img}'))`)
-				await run('insert into pozyczka()')
-			}
-			catch (err) {
-				err.msg = "oracle error"
-				err.code = randomInt()
-				return err
-			}
-		break
+				await run(`insert into dokument(id_dokumentu,skan) values(${id.doc},utl_raw.cast_to_raw('gg'))`)
+				regex = await run('select max(id_pozyczki) from pozyczka')
+				id.poz = regex[0][0] + 1
+
+				break
+		}
+	}
+	catch (e) {
+		console.log(data, e.toString())
+		throw e.toString()
 	}
 })
 
@@ -152,6 +184,7 @@ app.on('window-all-closed', () => {
 		app.quit()
 	}
 })
+
 /*
  * udzielenie porzyczki
  * spłacenie raty
