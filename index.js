@@ -22,7 +22,7 @@ async function run(command) {
 	}
 	catch (err) {
 		console.log(err)
-		throw ("Oracle error: <br>", command)
+		throw new Error("Oracle error: <br>", command)
 	}
 }
 
@@ -45,6 +45,31 @@ ipcMain.handle('dark-mode:toggle', () => {
 		nativeTheme.themeSource = 'dark'
 	}
 	return nativeTheme.shouldUseDarkColors
+})
+ipcMain.handle('sendUpdate', async (event, data) =>{
+	console.log(data)
+	var regex
+	try{
+		regex = /^[0-9]{11}$/
+		if (!regex.exec(data.pesel)) {
+			throw ("nie poprawny pesel")
+		}
+		data.name = (data.name).toLowerCase()
+		regex = /^([a-z]|[A-Z])+$/
+		if (!regex.exec(data.name)) {
+			throw ("nie poprawne imie")
+		}
+		data.sirname = (data.sirname).toLowerCase()
+		regex = /^([a-z]|[A-Z])+$/
+		if (!regex.exec(data.sirname)) {
+			throw ("nie poprawne nazwisko")
+		}
+		await run(`update POZYCZKOBIORCY set IMIE = '${data.name}', NAZWISKO = '${data.sirname}', 
+		PESEL = '${data.pesel}', STAN_ZATRUDNIENIA_ID = ${data.empl} WHERE ID_POZYCZKOBIORCY = ${data.id}`)
+	}
+	catch(err){
+		throw err
+	}
 })
 ipcMain.handle('search', async (event, type) => {
 	let res;

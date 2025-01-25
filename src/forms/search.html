@@ -1,1 +1,41 @@
-c
+<table border='1' id='searchTable'>
+	<tr>
+		<td colspan="2">wyszukaj
+			<select id='search' style="text-align: center;">
+				<option value="">
+					---
+				</option>
+				<option value="imie">
+					imie
+				</option>
+				<option value="nazwisko">
+					nazwisko
+				</option>
+				<option value="pesel">
+					pesel
+				</option>
+			</select><br>
+			Uzupełnianie
+			<select id='s-type' style="text-align: center;">
+				<option value=' | '>
+					brak(S)
+				</option>
+				<option value=' |%'>
+					S+
+				</option>
+				<option value='%| '>
+					+S
+				</option>
+				<option value='%|%'>
+					+S+
+				</option>
+			</select>
+		</td>
+		<td colspan="4">
+			<input type='text' id='name'>
+			<input type="button" value="szukaj" onclick="searchList()">
+		</td>
+	</tr>
+</table>
+<table id='mainTable' border="1">
+</table>

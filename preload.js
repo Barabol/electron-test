@@ -6,7 +6,8 @@ contextBridge.exposeInMainWorld('darkModez', {
 })
 contextBridge.exposeInMainWorld('send', {
 	send: (data) => ipcRenderer.invoke('submit', data),
-	search: (type) => ipcRenderer.invoke("search", type)
+	search: (type) => ipcRenderer.invoke("search", type),
+	update: (data) =>  ipcRenderer.invoke("sendUpdate", data)
 })
 contextBridge.exposeInMainWorld('get', {
 	selections: () => ipcRenderer.invoke("getJson"),

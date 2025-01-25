@@ -43,19 +43,97 @@ async function setOption(id) {
 			for (x in a)
 				document.getElementById('employment').innerHTML += `<option value = ${x}>${a[x]}</option>`
 			break
+		case 4:
+			{
+			const b = await window.get.list()
+			//const b = ['a']
+			document.getElementById('mainTable').innerHTML += `<tr><td><b>Imie</b></td><td><b>Nazwisko</b>
+			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Edytój</b></td><td><b>Usuń</b></td></tr>`
+			for (x in b) {
+				document.getElementById('mainTable').innerHTML += `
+				<tr><td id = 'name-${b[x][4]}'>${b[x][0]}</td>
+				<td id = 'sirname-${b[x][4]}'>${b[x][1]}</td>
+				<td id = 'pesel-${b[x][4]}'>${b[x][2]}</td>
+				<td id = 'empl-${b[x][4]}'>${b[x][3]}</td>
+				<td><input class='e' type="button" id = 'edit-${b[x][4]}' onclick="editItem(${b[x][4]})" value="E"></td>
+				<td><input type="button" onclick="deleteItem(${b[x][4]})" value="X"></td>
+				</tr>`
+			}
+			}
+			break
 		case 5:
+			{
 			const b = await window.get.list()
 			//const b = ['a']
 			document.getElementById('mainTable').innerHTML = `<tr><td><b>Imie</b></td><td><b>Nazwisko</b>
-			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Usuń</b></td></tr>`
+			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Edytój</b></td><td><b>Usuń</b></td></tr>`
 			for (x in b) {
-				document.getElementById('mainTable').innerHTML += `<tr><td>${b[x][0]}</td><td>${b[x][1]}</td><td>${b[x][2]}</td><td>${b[x][3]}</td>
-				<td><input type="button" onclick="deleteItem(${b[x][4]})" value="X"></td></tr>`
+				document.getElementById('mainTable').innerHTML += `
+				<tr><td id = 'name-${b[x][4]}'>${b[x][0]}</td>
+				<td id = 'sirname-${b[x][4]}'>${b[x][1]}</td>
+				<td id = 'pesel-${b[x][4]}'>${b[x][2]}</td>
+				<td id = 'empl-${b[x][4]}'>${b[x][3]}</td>
+				<td><input class='e' type="button" id = 'edit-${b[x][4]}' onclick="editItem(${b[x][4]})" value="E"></td>
+				<td><input type="button" onclick="deleteItem(${b[x][4]})" value="X"></td>
+				</tr>`
+			}
 			}
 			break
 	}
 }
+async function editItem(id){
+	let cClass = document.getElementById(`edit-${id}`).className
+	console.log(id,cClass)
+	let data = {
+		id: '',
+		name:'',
+		sirname:'',
+		pesel:'',
+		empl:''
+	}
+	if(cClass == 'e'){
+		document.getElementById(`edit-${id}`).className='s'
+		data.name = document.getElementById(`name-${id}`).innerHTML
+		data.sirname= document.getElementById(`sirname-${id}`).innerHTML
+		data.pesel = document.getElementById(`pesel-${id}`).innerHTML
+		data.empl = document.getElementById(`empl-${id}`).innerHTML
 
+		const a = await window.get.employment()
+		let doc = `<select id="empl-${id}-e">`
+
+		for (x in a)
+			doc += `<option value = ${x} id = 'opt-${x}'>${a[x]}</option>`
+		doc += '</select>' 
+
+		document.getElementById(`empl-${id}`).innerHTML=doc
+
+		document.getElementById(`name-${id}`).innerHTML = `<input type='text' id='name-${id}-e' value = ${data.name} class='btnOpt'>`
+		document.getElementById(`sirname-${id}`).innerHTML = `<input type='text' id='sirname-${id}-e' value = ${data.sirname} class='btnOpt'>`
+		document.getElementById(`pesel-${id}`).innerHTML = `<input type='number' id='pesel-${id}-e' value = ${data.pesel} class='btnOpt'>`
+		
+		console.log(data)
+	}
+	else{
+		data.name = document.getElementById(`name-${id}-e`).value
+		data.sirname= document.getElementById(`sirname-${id}-e`).value
+		data.pesel = document.getElementById(`pesel-${id}-e`).value
+		data.empl = document.getElementById(`empl-${id}-e`).value
+		data.id = id
+		try{
+			await window.send.update(data)
+			showMsg(false,"uaktualniono")
+			document.getElementById(`name-${id}`).innerHTML = data.name
+			document.getElementById(`sirname-${id}`).innerHTML = data.sirname
+			document.getElementById(`pesel-${id}`).innerHTML = data.pesel
+			document.getElementById(`empl-${id}`).innerHTML = document.getElementById(`opt-${data.empl}`).innerHTML
+			document.getElementById(`edit-${id}`).className='e'
+			console.log(data)
+		}
+		catch(err){
+			showMsg(true,err)
+		}
+	}
+}
 var file = ""
 async function setFile(t) {
 	function changeCFile(content) {
@@ -76,7 +154,7 @@ async function setFile(t) {
 		readerz.readAsText(document.getElementById('img').files[0], "UTF-8");
 		readerz.onload = function (evt) {
 			document.getElementById("holder").innerHTML = evt.target.result.replaceAll("\n","<br>")
-			document.getElementById("holder").style = 'background: gray;'
+			document.getElementById("holder").style = 'background: gray;margin:20px;padding:10px;border-radius:10px;'
 		}
 	}
 	return 1
@@ -122,6 +200,52 @@ async function post() {
 		showMsg(true, `${e}`)
 	}
 
+}
+async function searchList() {
+	//document.getElementById("selectPerson").innerHTML = "<option value=-1 disabled>imie nazwisko pesel</option>"
+	var opt = document.getElementById("search").value
+	let res;
+	if (opt == "") {
+			const b = await window.get.list()
+			document.getElementById('mainTable').innerHTML = `<tr><td><b>Imie</b></td><td><b>Nazwisko</b>
+			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Edytój</b></td><td><b>Usuń</b></td></tr>`
+			for (x in b) {
+				document.getElementById('mainTable').innerHTML += `
+				<tr><td id = 'name-${b[x][4]}'>${b[x][0]}</td>
+				<td id = 'sirname-${b[x][4]}'>${b[x][1]}</td>
+				<td id = 'pesel-${b[x][4]}'>${b[x][2]}</td>
+				<td id = 'empl-${b[x][4]}'>${b[x][3]}</td>
+				<td><input class='e' type="button" id = 'edit-${b[x][4]}' onclick="editItem(${b[x][4]})" value="E"></td>
+				<td><input type="button" onclick="deleteItem(${b[x][4]})" value="X"></td>
+				</tr>`
+			}
+
+		return;
+	}
+	const val = {
+		option: document.getElementById("search").value,
+		gut: document.getElementById("name").value,
+		updatez: document.getElementById("s-type").value,
+	}
+	console.log(val)
+	document.getElementById('mainTable').innerHTML = `<tr><td><b>Imie</b></td><td><b>Nazwisko</b>
+			</td><td><b>Pesel</b></td><td><b>Stan zatrudnienia</b></td><td><b>Edytój</b></td><td><b>Usuń</b></td></tr>`
+	try {
+		res = await window.send.search(val)
+	}
+	catch (err) {
+		showMsg(true, err)
+	}
+	for (x in res) {
+				document.getElementById('mainTable').innerHTML += `
+				<tr><td id = 'name-${res[x][4]}'>${res[x][0]}</td>
+				<td id = 'sirname-${res[x][4]}'>${res[x][1]}</td>
+				<td id = 'pesel-${res[x][4]}'>${res[x][2]}</td>
+				<td id = 'empl-${res[x][4]}'>${res[x][3]}</td>
+				<td><input class='e' type="button" id = 'edit-${res[x][4]}' onclick="editItem(${res[x][4]})" value="E"></td>
+				<td><input type="button" onclick="deleteItem(${res[x][4]})" value="X"></td>
+				</tr>`
+	}
 }
 async function search() {
 	document.getElementById("selectPerson").innerHTML = "<option value=-1 disabled>imie nazwisko pesel</option>"
