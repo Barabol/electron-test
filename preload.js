@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('get', {
 	site: (id) => ipcRenderer.invoke("getSite", id),
 	employment: () => ipcRenderer.invoke("getEmployment"),
 	list: () => ipcRenderer.invoke("getList"),
+	listZ: (data) => ipcRenderer.invoke("getZList",data),
+	connTest: ()=> ipcRenderer.invoke("testConnection")
 })
 contextBridge.exposeInMainWorld('file', {
 	export: () => ipcRenderer.invoke("exportToFile"),

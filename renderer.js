@@ -1,4 +1,5 @@
 var selected = 0;
+var ammOptions
 
 init()
 async function theme() {
@@ -9,7 +10,9 @@ async function theme() {
 async function init() {
 	const data = await window.get.selections(12)
 	let content = "<tr>"
+	ammOptions=0
 	for (x in data) {
+		ammOptions++;
 		content += `<td><input type="button" id="option-${x}" class="unselected" value = "${data[x].name}" onclick="setOption(${x})"></td>`
 		console.log(data[x])
 	}
@@ -22,11 +25,20 @@ async function deleteItem(id_) {
 	setOption(selected)
 }
 async function setOption(id) {
-	document.getElementById(`option-${selected}`).disabled = false
+	
 	document.getElementById(`option-${selected}`).className = "unselected"
-	document.getElementById(`option-${id}`).disabled = true
+	for(x in ammOptions)
+		document.getElementById(`option-${x}`).disabled = true
 	document.getElementById(`option-${id}`).className = "selected"
+
 	selected = id
+	try{
+		await window.get.connTest()
+	}
+	catch(err){
+		showMsg(true,err)
+		return
+	}
 	const data = await window.get.site(id)
 
 	if (!data) {
@@ -37,6 +49,9 @@ async function setOption(id) {
 	switch (id) {
 		case 0:
 			search()
+		break
+		case 1:
+			searchZList()
 		break
 		case 2:
 			const a = await window.get.employment()
@@ -80,6 +95,9 @@ async function setOption(id) {
 			}
 			break
 	}
+	for (x in ammOptions)
+		if(x != selected)
+			document.getElementById(`option-${x}`).disabled = false
 }
 async function editItem(id){
 	let cClass = document.getElementById(`edit-${id}`).className
@@ -159,6 +177,14 @@ async function setFile(t) {
 	}
 	return 1
 }
+function calc(type){
+	console.log(type)
+	var holder=[0,0,0] 
+	holder[0] = document.getElementById('calc').value  //wysokośc pożyczki
+	holder[1] = document.getElementById('amount').value//wysokość raty
+	holder[2] = document.getElementById('amm').value   //ilość rat
+	document.getElementById('calc').value = holder[1] * holder[2]
+}
 async function post() {
 	let data
 	let res
@@ -167,17 +193,32 @@ async function post() {
 			case 0:
 				data = {
 					type: "pozyczka",
-					name: document.getElementById('name').value,
+					id: document.getElementById('selectPerson').value,
+					amm: document.getElementById('calc').value,
+					raty: document.getElementById('amm').value,
+					img: 'a',
+					name: document.getElementById('zname').value,
 					sirname: document.getElementById('sirname').value,
-					moneyz: document.getElementById('amount').value,
-					img: file
+					pesel:document.getElementById('pesel').value
 				}
+				console.log(data)
 				res = await window.send.send(data)
 				if (res)
 					showMsg(true, `Error: ${res.code}\n${res.msg}`)
 				else
 					showMsg(false, `Dodano`)
 				break
+			case 1:
+				data = {
+					type: "zyrant",
+					name:  document.getElementById('zname').value,
+					sirname: document.getElementById('sirname').value,
+					pesel: document.getElementById('pesel').value,
+					id: document.getElementById('loan').value,
+				}
+				res = await window.send.send(data)
+				showMsg(false, `Dodano`)	
+			break
 			case 2:
 				data = {
 					type: "pozyczkobiorca",
@@ -199,6 +240,29 @@ async function post() {
 	catch (e) {
 		showMsg(true, `${e}`)
 	}
+
+}
+async function searchZList(){
+	var opt = document.getElementById("search").value
+	var res
+let content = "<option disabled>imie|nazwisko|pesel|data pozyczki|wysokosc pozyczki</option>"
+	if( opt == ''){
+		res = await window.get.listZ()
+	}
+	else{
+		var data = {
+			updatez: document.getElementById('s-type').value,
+			gut:document.getElementById('name').value,
+			tab:document.getElementById('search').value,
+		}
+		res = await window.get.listZ(data)
+	}
+	for (x in res){
+		content+=`<option value = ${res[x][0]}>
+		${res[x][1]} ${res[x][2]} ${res[x][3]} ${res[x][4]} ${res[x][5]*res[x][6]}
+		</option>`
+	}
+	document.getElementById('loan').innerHTML = content
 
 }
 async function searchList() {
@@ -264,7 +328,6 @@ async function search() {
 		gut: document.getElementById("name").value,
 		updatez: document.getElementById("s-type").value,
 	}
-	console.log(val)
 	console.log(val)
 	try {
 		res = await window.send.search(val)

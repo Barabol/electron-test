@@ -46,17 +46,51 @@
 		</td>
 	<tr>
 	<tr>
-		<td>Wysokość pożyczki</td>
-		<td><input type='number' id='amount'><br></td>
+		<td>wysokosc pozyczki</td>
+		<td><input disabled type='number' id='calc' onchange="calc('calc')"><br> </td>
+	<tr>
+		<td>Wysokość raty</td>
+		<td><input type='number' id='amount' onchange="calc('amount')"><br></td>
+	</tr>
+
+	</tr>
+	<tr>
+		<td>Ilosc rat</td>
+		<td><input type='number' id='amm' onchange="calc('amm')"><br></td>
 	</tr>
 	<tr>
 		<td>Skan</td>
 		<td><input type='file' id='img' onchange="setFile()"><br></td>
 	</tr>
 	<tr>
+		<td colspan="2">Żyrant
+		<td>
+	</tr>
+	<tr>
+		<td>
+			imie:
+		</td>
+		<td>
+			<input type="text" id="zname">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			nazwisko:
+		</td>
+		<td>
+			<input type="text" id="sirname">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			pesel:
+		</td>
+		<td>
+			<input type="number" id="pesel">
+		</td>
+	</tr>
+	<tr>
 		<td colspan='2'><input type='button' id='send' value='Wyślij' onclick="post()"><br></td>
 	</tr>
 </table>
-<img src="" id="img2" width="200px">
-<div id="holder" class="">
-</div>

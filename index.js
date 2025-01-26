@@ -17,7 +17,7 @@ async function run(command) {
 		const res = await connection.execute(command)
 		console.log(await connection.execute("commit write batch"))
 		console.log(res)
-		connection.close()
+		await connection.close()
 		return res
 	}
 	catch (err) {
@@ -25,6 +25,39 @@ async function run(command) {
 		throw new Error("Oracle error: <br>", command)
 	}
 }
+
+ipcMain.handle("testConnection",async ()=>{
+	try {
+		const connection = await oracledb.getConnection({
+			user: process.env.USR,
+			password: process.env.PASSWD,
+			connectString: process.env.HOST
+		})
+		await connection.close()
+	}
+	catch (err) {
+		throw "Błąd połączenia z bazą danych<br>"+err
+	}
+
+})
+ipcMain.handle("getZList",async (event,data)=>{
+	try {
+		var res;
+		if(!data){
+			res = await run('select * from zyranci_pozyczka')
+			return res.rows
+		}
+		else{
+			data.updatez = data.updatez.split('|')
+			res = await run(`select * from zyranci_pozyczka where ${data.tab} like '${data.updatez[0]==' '?'':data.updatez[0]}${data.gut}${data.updatez[1]==' '?'':data.updatez[1]}'`)
+		}
+		return res.rows
+	}
+	catch (err) {
+		throw err
+	}
+
+})
 
 function createWindow() {
 	const win = new BrowserWindow({
@@ -173,20 +206,58 @@ ipcMain.handle('submit', async (event, data) => {
 				await run('select * from pozyczkobiorcy')
 				break
 			case "pozyczka":
-				if (data.moneyz < 1)
+				regex = /^[0-9]{11}$/
+				if (!regex.exec(data.pesel)) {
+					throw ("nie poprawny pesel")
+				}
+				data.name = (data.name).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.name)) {
+					throw ("nie poprawne imie")
+				}
+				data.sirname = (data.sirname).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.sirname)) {
+					throw ("nie poprawne nazwisko")
+				}
+				if (data.amm< 1 || data.raty<1)
 					throw ("wysokość pożyczki poza zakresem(1)")
 				id = await run("select max(id_dokumentu) from dokument")
+				await run(`insert into dokument values(${id.rows[0][0]+1},utl_raw.cast_to_raw('gg'))`)
+
 				id = { doc: id.rows[0][0] + 1, poz: 0 }
-				let type = await run(`select * from limity_pozyczek where max <= ${data.moneyz} order by max asc`)
-				if (!type.rows.length)
-					throw new Error("wysokość pożyczki poza zakresem(2)")
-
-				await run(`insert into dokument(id_dokumentu,skan) values(${id.doc},utl_raw.cast_to_raw('gg'))`)
-				regex = await run('select max(id_pozyczki) from pozyczka')
-				id.poz = regex[0][0] + 1
-
+				await run(`begin PKG1.dodaj(${data.amm},${data.raty},${id.doc},${data.id}); end;`)
+				id = {pozyczka:0,zyrant:0}
+				id.pozyczka = await run("select max(id_pozyczki) from pozyczka")
+				id.zyrant =  await run("select max(id_zyranci) from zyranci")
+				id.pozyczka = Number(id.pozyczka.rows[0][0])
+				id.zyrant = Number(id.zyrant.rows[0][0])
+				console.log(id);
+				await run(`insert into zyranci values(${id.zyrant},'${data.name}','${data.sirname}','${data.pesel}',${id.pozyczka})`)
 				break
+			case "zyrant":
+				regex = /^[0-9]{11}$/
+				if (!regex.exec(data.pesel)) {
+					throw ("nie poprawny pesel")
+				}
+				data.name = (data.name).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.zname)) {
+					throw ("nie poprawne imie")
+				}
+				data.sirname = (data.sirname).toLowerCase()
+				regex = /^([a-z]|[A-Z])+$/
+				if (!regex.exec(data.sirname)) {
+					throw ("nie poprawne nazwisko")
+				}
+				id	=  await run("select max(id_zyranci) from zyranci")
+				id = Number(id.rows[0][0])
+				id++;
+				await run(`insert into zyranci values(${id},'${data.name}','${data.sirname}','${data.pesel}',${data.id})`)
+			break
+
 		}
+
 	}
 	catch (e) {
 		console.log(data, e.toString())
