@@ -167,10 +167,64 @@ ipcMain.handle('getSite', async (event, id) => {
 	return res
 })
 ipcMain.handle("exportToFile",async ()=> {
+	/*	dokument
+	 * pozyczkobiorcy
+	 *	pozyczka
+	 *	zyranci
+	 */
+	var data = {
+		dokument:[],
+		pozyczkobiorcy:[],
+		pozyczka:[],
+		zyranci:[]
+	}
+	var res;
+	var path_ = path.join(__dirname,'/out.json')
+	try{
+		res = await run('select id_dokumentu,cast(skan as varchar2(500)) from dokument')
+		data.dokument = res.rows
 
+		res = await run('select ID_POZYCZKOBIORCY,cast(imie as varchar2(100)),cast(nazwisko as varchar2(100)),cast(pesel as varchar2(100)),WYNIK_KREDYTOWY,wielkosc_skladki,STAN_ZATRUDNIENIA_ID from POZYCZKOBIORCY')
+		data.pozyczkobiorcy = res.rows
+
+		res = await run("select ID_POZYCZKI,wysokosc_pozyczki,ILOSC_RAT,rata,to_char(DATA_UMOWY,'YYYY-MM-DD'),RODZAJE_POZYCZEK_ID_POZYCZKI,POZYCZKOBIORCY_ID_POZYCZKOBIORCY,DOKUMENT_ID_DOKUMENTU from POZYCZKA")
+		data.pozyczka = res.rows
+
+		res = await run('select ID_ZYRANCI,cast(imie as varchar2(100)),cast(NAZWISKO as varchar2(100)),cast(PESEL as varchar2(100)),POZYCZKA_ID_POZYCZKI from ZYRANCI')
+		data.zyranci = res.rows
+		fs.writeFile(path_,JSON.stringify(data),(err)=>{
+			if(err)
+				throw err
+		})
+		return path_
+	}
+	catch(err){
+		throw err
+	}
 })
 ipcMain.handle("importFromFile",async (event,data)=>{
+	try{
+		if(data[data.length-1] != '}')
+			data = data.split('<')[0]
 
+		console.log(data)
+		data = await JSON.parse(data)
+		for (x in data.dokument){
+			await run(`insert into dokument values(${data.dokument[x][0]},utl_raw.cast_to_raw('${data.dokument[x][1]}'))`)
+		}
+		for (x in data.pozyczkobiorcy){
+			await run(`insert into pozyczkobiorcy values(${data.pozyczkobiorcy[x][0]},'${data.pozyczkobiorcy[x][1]}','${data.pozyczkobiorcy[x][2]}',${data.pozyczkobiorcy[x][5]},'${data.pozyczkobiorcy[x][3]}',${data.pozyczkobiorcy[x][4]},${data.pozyczkobiorcy[x][6]})`)
+		}
+		for (x in data.pozyczka){
+			await run(`insert into pozyczka values(${data.pozyczka[x][0]},${data.pozyczka[x][1]},${data.pozyczka[x][2]},${data.pozyczka[x][3]},to_date('${data.pozyczka[x][4]}','YYYY-MM-DD'),${data.pozyczka[x][5]},${data.pozyczka[x][6]},${data.pozyczka[x][7]})`)
+		}
+		for (x in data.zyranci){
+			await run(`insert into zyranci values(${data.zyranci[x][0]},'${data.zyranci[x][1]}','${data.zyranci[x][2]}','${data.zyranci[x][3]}',${data.zyranci[x][4]})`)
+		}
+	}
+	catch(err){
+		throw err
+	}
 })
 ipcMain.handle('submit', async (event, data) => {
 	console.log(data)

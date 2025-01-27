@@ -1,16 +1,22 @@
 <table border='1' id='mainTable'>
 	<tr>
 		<td>
-			<select id="type">
-				<option value="import">
-					import
-				</option>
-				<option value="export">
-					export
-				</option>
-			</select>
+
+			<input type="radio" name='type' id='import' checked>
+			<label for="import">
+				import
+			</label>
+			<br>
+			<input type="radio" name='type' id='export' checked>
+			<label for="export">
+				export
+			</label>
 		</td>
-		<td><input type='file' id='img' onchange="setFile('text')" accept="text/json"><br></td>
+		<td><input type='file' id='img' onchange="setFile('text')" accept="text/json">
+			<br>
+			<input type="button" onclick="post()" value="ok">
+			<br>
+		</td>
 	</tr>
 </table>
 <div id="holder" class="">

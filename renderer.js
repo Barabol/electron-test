@@ -234,7 +234,17 @@ async function post() {
 				else
 					showMsg(false, `Dodano`)
 				break
+			case 6:
+				if(document.getElementById('export').checked){
+					res = await window.file.export()
+					showMsg(false,'zapisano w :'+res)
+				}
+				else{
+					res = await window.file.import(document.getElementById('holder').innerHTML)
+					showMsg(false,'wczytano')
+				}
 
+			break
 		}
 	}
 	catch (e) {
