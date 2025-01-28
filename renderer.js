@@ -58,6 +58,9 @@ async function setOption(id) {
 			for (x in a)
 				document.getElementById('employment').innerHTML += `<option value = ${x}>${a[x]}</option>`
 			break
+		case 3:
+			searchZList()
+		break
 		case 4:
 			{
 			const b = await window.get.list()
@@ -185,6 +188,26 @@ function calc(type){
 	holder[2] = document.getElementById('amm').value   //ilość rat
 	document.getElementById('calc').value = holder[1] * holder[2]
 }
+async function select_(){
+	try{
+		console.log(document.getElementById('loan').value)
+		let res = await window.get.zyrants({id:document.getElementById('loan').value,zyrant:true})
+		let content = '<option disabled>imie|nazwisko|pesel</option>'
+		console.log(res)
+		for (x in res){
+			content += `<option value = ${res[x][0]}>${res[x][1]}|${res[x][2]}|${res[x][3]}</option>`
+		}
+		document.getElementById('zyrant').innerHTML = content
+		res = await window.get.zyrants({id:document.getElementById('loan').value,zyrant:false})
+		document.getElementById('amount').value=res[0][0]
+		document.getElementById('value').value=res[0][1]
+		document.getElementById('toPay').value=res[0][2]
+	}
+	catch(err){
+		showMsg(true,err)
+	}
+
+}
 async function post() {
 	let data
 	let res
@@ -234,6 +257,15 @@ async function post() {
 				else
 					showMsg(false, `Dodano`)
 				break
+			case 3:
+				data = {
+					type:"payment",
+					id: document.getElementById('loan').value
+				}
+				res = await window.send.send(data);
+				select_()
+				showMsg(false,"splacono ratę")
+			break
 			case 6:
 				if(document.getElementById('export').checked){
 					res = await window.file.export()

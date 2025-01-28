@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('send', {
 	update: (data) =>  ipcRenderer.invoke("sendUpdate", data)
 })
 contextBridge.exposeInMainWorld('get', {
+	zyrants: (id)=> ipcRenderer.invoke("getZyrant",id),
 	selections: () => ipcRenderer.invoke("getJson"),
 	site: (id) => ipcRenderer.invoke("getSite", id),
 	employment: () => ipcRenderer.invoke("getEmployment"),

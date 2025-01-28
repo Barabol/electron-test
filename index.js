@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron/main')
 const path = require('node:path')
 const fs = require("fs")
 const oracledb = require("oracledb")
-const { defaultApp } = require('node:process')
 require("dotenv").config()
 
 async function run(command) {
@@ -226,6 +225,27 @@ ipcMain.handle("importFromFile",async (event,data)=>{
 		throw err
 	}
 })
+ipcMain.handle('getZyrant', async (event, id) => {
+	if(id.zyrant){
+		try{
+			let ret = await run(`
+				SELECT ID_ZYRANCI,cast(imie as VARCHAR2(70)),cast(NAZWISKO as VARCHAR2(70)),cast(pesel as VARCHAR2(70)) from ZYRANCI where POZYCZKA_ID_POZYCZKI = ${id.id}`)
+			return ret.rows
+		}
+		catch(err){
+			throw err;
+		}
+	}
+	else{
+		try{
+			let ret = await run(`select rata,ILOSC_RAT,WYSOKOSC_POZYCZKI from POZYCZKA where id_pozyczki = ${id.id}`)
+			return ret.rows
+		}
+		catch(err){
+			throw err;
+		}
+	}
+})
 ipcMain.handle('submit', async (event, data) => {
 	console.log(data)
 	let id;
@@ -286,6 +306,7 @@ ipcMain.handle('submit', async (event, data) => {
 				id.zyrant =  await run("select max(id_zyranci) from zyranci")
 				id.pozyczka = Number(id.pozyczka.rows[0][0])
 				id.zyrant = Number(id.zyrant.rows[0][0])
+				id.zyrant++; 
 				console.log(id);
 				await run(`insert into zyranci values(${id.zyrant},'${data.name}','${data.sirname}','${data.pesel}',${id.pozyczka})`)
 				break
@@ -309,7 +330,14 @@ ipcMain.handle('submit', async (event, data) => {
 				id++;
 				await run(`insert into zyranci values(${id},'${data.name}','${data.sirname}','${data.pesel}',${data.id})`)
 			break
+			case "payment":
+				ret = await run(`select rata,ILOSC_RAT,WYSOKOSC_POZYCZKI from POZYCZKA where id_pozyczki = ${data.id}`)
+				ret = ret.rows
+				if(ret[0][2] - ret[0][0] < 0)
+					throw "spłacać nie da się zamocno"
+				await run(`update POZYCZKA set WYSOKOSC_POZYCZKI = WYSOKOSC_POZYCZKI - rata where ID_POZYCZKI = ${data.id}`)
 
+			break
 		}
 
 	}

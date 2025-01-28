@@ -1,1 +1,81 @@
-b
+<table border='1' id='searchTable'>
+	<tr>
+		<td colspan="2">wyszukaj
+			<select id='search' style="text-align: center;">
+				<option value="">
+					---
+				</option>
+				<option value="imie">
+					imie
+				</option>
+				<option value="nazwisko">
+					nazwisko
+				</option>
+				<option value="pesel">
+					pesel
+				</option>
+			</select><br>
+			Uzupełnianie
+			<select id='s-type' style="text-align: center;">
+				<option value=' | '>
+					brak(S)
+				</option>
+				<option value=' |%'>
+					S+
+				</option>
+				<option value='%| '>
+					+S
+				</option>
+				<option value='%|%'>
+					+S+
+				</option>
+			</select>
+		</td>
+		<td colspan="4">
+			<input type='text' id='name'>
+			<input type="button" value="wyszukaj" onclick="searchZList()">
+		</td>
+	</tr>
+	<tr>
+		<td>Pozyczka:</td>
+		<td colspan="2">
+			<select id='loan'>
+				<option disabled>
+					imie|nazwisko|pesel|data pozyczki|wysokosc pozyczki
+				</option>
+			</select>
+			<input type="button" value="wybierz" onclick="select_()">
+		</td>
+	</tr>
+	<tr>
+		<td>Zyranci:</td>
+		<td colspan="2">
+			<select id='zyrant'>
+				<option disabled>
+					imie|nazwisko|pesel
+				</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td>ilosc rat</td>
+		<td>wielkosc raty</td>
+		<td>pozostałość do splacenia</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="number" value='0' disabled id="amount">
+		</td>
+		<td>
+			<input type="number" value='0' disabled id="value">
+		</td>
+		<td>
+			<input type="number" value='0' disabled id="toPay">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+			<input type="button" value = "spłać" onclick='post()'>
+		</td>
+	</tr>
+</table>
