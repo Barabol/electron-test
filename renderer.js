@@ -33,7 +33,7 @@ async function setOption(id) {
 
 	selected = id
 	try{
-		await window.get.connTest()
+		//await window.get.connTest()
 	}
 	catch(err){
 		showMsg(true,err)
